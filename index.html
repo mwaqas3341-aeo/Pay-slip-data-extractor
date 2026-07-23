@@ -89,12 +89,13 @@
     <div class="panel-grid">
       <div class="panel-col">
         <div class="dropzone" id="dropzone-bulk" tabindex="0" role="button"
-             aria-label="Upload payroll .XLS file">
+             aria-label="Upload payroll export file">
           <div class="dropzone-icon">⇪</div>
-          <p class="dropzone-title">Drop the payroll .XLS file here</p>
-          <p class="dropzone-sub">or click to browse — single file, any size</p>
-          <input type="file" id="file-bulk" accept=".xls,.XLS,.txt" hidden>
+          <p class="dropzone-title">Drop the payroll export file here</p>
+          <p class="dropzone-sub">.xls, .xlsx, .csv or .txt — or click to browse — single file, any size</p>
+          <input type="file" id="file-bulk" accept=".xls,.XLS,.xlsx,.XLSX,.csv,.CSV,.txt,.TXT" hidden>
         </div>
+
         <div class="file-chip" id="file-chip-bulk" hidden></div>
 
         <div class="field-row">
@@ -178,6 +179,7 @@
 </main>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="js/bulkParser.js"></script>
 <script src="js/individualParser.js"></script>
