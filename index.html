@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payroll Extract — Punjab School Education Dept.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <span class="stub"></span><span class="stub"></span>
+      </span>
+      <div class="brand-text">
+        <span class="brand-title">Payroll Extract</span>
+        <span class="brand-sub">AEO Office — School Education Department, Punjab</span>
+      </div>
+    </div>
+    <div class="privacy-pill">Runs entirely in your browser · files never leave this device</div>
+  </div>
+</header>
+
+<main class="page">
+
+  <section class="intro">
+    <h1>Turn payroll dumps into a clean spreadsheet.</h1>
+    <p>
+      Upload a district-wide payroll <code>.XLS</code> register or a PIFRA
+      "Monthly Salary Statement" PDF. This tool parses it in your browser and
+      hands back one row per employee — pay codes classified into earnings
+      (green) and deductions (red), exactly as they appear on the original
+      slip.
+    </p>
+  </section>
+
+  <nav class="tabs" role="tablist" aria-label="Extraction mode">
+    <button class="tab active" role="tab" aria-selected="true" data-mode="bulk" id="tab-bulk">
+      <span class="tab-index">01</span>
+      District Payroll Register <span class="tab-hint">(bulk .XLS)</span>
+    </button>
+    <button class="tab" role="tab" aria-selected="false" data-mode="individual" id="tab-individual">
+      <span class="tab-index">02</span>
+      Individual Salary Slip <span class="tab-hint">(PDF / screenshot JSON)</span>
+    </button>
+  </nav>
+
+  <!-- ============================= BULK MODE ============================= -->
+  <section class="panel" id="panel-bulk" data-panel="bulk">
+    <div class="panel-grid">
+      <div class="panel-col">
+        <div class="dropzone" id="dropzone-bulk" tabindex="0" role="button"
+             aria-label="Upload payroll .XLS file">
+          <div class="dropzone-icon">⇪</div>
+          <p class="dropzone-title">Drop the payroll .XLS file here</p>
+          <p class="dropzone-sub">or click to browse — single file, any size</p>
+          <input type="file" id="file-bulk" accept=".xls,.XLS,.txt" hidden>
+        </div>
+        <div class="file-chip" id="file-chip-bulk" hidden></div>
+
+        <div class="field-row">
+          <label for="office-prefix">Office-code prefix (optional)</label>
+          <input type="text" id="office-prefix" maxlength="4" placeholder="e.g. LL — leave blank for all departments">
+          <p class="field-hint">Restricts output to one office-code family (School Education is commonly <code>LL</code> in Layyah-style exports — prefixes are district-specific, check your file's header rows first).</p>
+        </div>
+
+        <button class="btn-primary" id="btn-run-bulk" disabled>Extract payroll data</button>
+      </div>
+
+      <div class="panel-col">
+        <div class="log-box" id="log-bulk">
+          <p class="log-empty">Extraction log will appear here.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="result-box" id="result-bulk" hidden>
+      <div class="result-summary" id="result-summary-bulk"></div>
+      <div class="ledger-wrap">
+        <table class="ledger" id="preview-table-bulk"></table>
+      </div>
+      <button class="btn-download" id="btn-download-bulk">Download .xlsx</button>
+    </div>
+  </section>
+
+  <!-- ========================== INDIVIDUAL MODE =========================== -->
+  <section class="panel" id="panel-individual" data-panel="individual" hidden>
+    <div class="panel-grid">
+      <div class="panel-col">
+        <div class="dropzone" id="dropzone-individual" tabindex="0" role="button"
+             aria-label="Upload salary statement PDFs or JSON records">
+          <div class="dropzone-icon">⇪</div>
+          <p class="dropzone-title">Drop PDF salary slips or JSON records</p>
+          <p class="dropzone-sub">multiple files accepted — mix PDFs and JSON freely</p>
+          <input type="file" id="file-individual" accept=".pdf,.PDF,.json" multiple hidden>
+        </div>
+        <ul class="file-list" id="file-list-individual"></ul>
+
+        <details class="screenshot-help">
+          <summary>Have a screenshot instead of a PDF?</summary>
+          <p>
+            This format has no text layer to parse automatically. Read the
+            image yourself, fill in a JSON record using the template below,
+            and upload the <code>.json</code> file alongside your PDFs.
+          </p>
+          <button class="btn-secondary" id="btn-template">Download blank JSON template</button>
+        </details>
+
+        <button class="btn-primary" id="btn-run-individual" disabled>Extract salary slip data</button>
+      </div>
+
+      <div class="panel-col">
+        <div class="log-box" id="log-individual">
+          <p class="log-empty">Extraction log will appear here.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="result-box" id="result-individual" hidden>
+      <div class="result-summary" id="result-summary-individual"></div>
+      <div class="ledger-wrap">
+        <table class="ledger" id="preview-table-individual"></table>
+      </div>
+      <button class="btn-download" id="btn-download-individual">Download .xlsx</button>
+    </div>
+  </section>
+
+  <section class="notes">
+    <h2>Good to know</h2>
+    <ul>
+      <li><strong>Nothing is uploaded anywhere.</strong> Parsing and spreadsheet generation happen locally in your browser tab using JavaScript; the files never touch a server.</li>
+      <li><strong>Office codes are cost-centers, not postings.</strong> One office code can pay staff across many physical schools — treat it as a disbursing office, not a 1:1 school identifier.</li>
+      <li><strong>"Est. Date of Entry in Service" (bulk mode) is an approximation</strong>, derived from the printed length-of-service — typically accurate to within a few days. Individual slips carry the exact date instead.</li>
+      <li><strong>Bank Account No. is a raw account number</strong>, not a formatted IBAN.</li>
+      <li>Very large registers (100MB+, tens of thousands of rows) are normal for district-wide files — extraction may take a minute or two; the log on the right shows progress.</li>
+    </ul>
+  </section>
+
+</main>
+
+<footer class="foot">
+  Built for the School Education Department, Punjab — office of the Assistant Education Officer.
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="js/bulkParser.js"></script>
+<script src="js/individualParser.js"></script>
+<script src="js/xlsxWriter.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
