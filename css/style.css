@@ -365,7 +365,73 @@ table.ledger tbody tr:hover td { background: rgba(15, 107, 92, 0.05); }
   padding: 24px;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-  * { transition: none !important; }
+/* ---------------- Credit block ---------------- */
+.credit-block {
+  background: var(--paper-raised);
+  border-bottom: 1px solid var(--line);
+  text-align: center;
+  padding: 28px 24px 26px;
 }
+.credit-inner { max-width: 1080px; margin: 0 auto; }
+.credit-label {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin: 0 0 4px;
+}
+.credit-name {
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-weight: 700;
+  color: var(--teal-dark);
+  margin: 0 0 4px;
+  letter-spacing: -0.01em;
+}
+.credit-title {
+  color: var(--ink-soft);
+  font-size: 1rem;
+  margin: 0 0 16px;
+}
+.credit-contacts {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.credit-contact {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
+  color: var(--teal-dark);
+  background: #EFF7F4;
+  border: 1px solid #CFE6DE;
+  border-radius: 999px;
+  padding: 7px 14px;
+  text-decoration: none;
+}
+.credit-contact:hover { background: #E1F0E9; }
+.credit-icon { font-size: 0.9em; }
+
+/* ---------------- Footer / WhatsApp ---------------- */
+.foot p { margin: 0 0 10px; }
+.whatsapp-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #25D366;
+  color: #0B3B1E;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  padding: 10px 18px;
+  border-radius: 999px;
+  margin: 4px 0 10px;
+}
+.whatsapp-btn:hover { background: #1EBE5B; }
+.whatsapp-icon { font-size: 1em; }
+.whatsapp-number { font-family: var(--font-mono); font-size: 0.82rem; }
+.whatsapp-number a { color: var(--teal-dark); }
+
