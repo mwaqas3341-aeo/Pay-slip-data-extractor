@@ -1,9 +1,25 @@
 /**
  * bulkParser.js
  * -----------------------------------------------------------------------
- * Parses a Punjab Govt AG/District payroll ".XLS" export. Despite the
- * extension, these files are UTF-16 encoded, tab-delimited plain text: a
- * raw print dump showing TWO employee payslips side by side per line.
+ * Parses a Punjab Govt AG/District payroll export. This is a raw print
+ * dump showing TWO employee payslips side by side per "line" (left slip
+ * in the first field, right slip in the second). Departments export this
+ * dump in whatever format their machine happens to save it as, so the
+ * SAME underlying content shows up on disk in several different wrappers:
+ *
+ *   - UTF-16 tab-delimited text saved with an ".XLS" extension (the most
+ *     common case — no real spreadsheet structure at all, just text).
+ *   - A genuine .XLS/.XLSX workbook, where each print-dump line became one
+ *     spreadsheet row and the tab became the column A/B boundary (e.g.
+ *     someone opened the raw dump in Excel and hit "Save As").
+ *   - A .csv export of the same two-column layout.
+ *   - Plain UTF-8 text (no BOM) with the same tab layout.
+ *
+ * detectFileKind() sniffs the real bytes (not the filename/extension,
+ * which is unreliable here) and routes to the right reader. Every path
+ * ends up producing the same tab-delimited text stream, which then goes
+ * through the original buildStreams -> splitRecords -> parseRecord
+ * pipeline unchanged.
  *
  * This is a JS port of scripts/extract_payslips.py from the
  * data-extraction-from-payslips skill. See README.md / SKILL_NOTES.md for
@@ -20,6 +36,42 @@ const BulkParser = (() => {
   //   "2378-Adhoc Relief All 2023 35%    13,744.00"
   // Description may contain hyphens, so the char class must allow '-'.
   const CODE_RE = /(\d{4})-([A-Za-z0-9 .()%/&'-]+?)\s{2,}([\d,]+\.\d{2})/g;
+
+  /** Sniff the real file format from its bytes — the extension on these
+   *  exports is not trustworthy (a ".XLS" file is usually raw UTF-16 text,
+   *  never a real workbook; conversely a ".XLSX" someone re-saved from it
+   *  IS a real workbook). Returns one of:
+   *    'zip'   - modern .xlsx/.xlsm (starts with the "PK" zip signature)
+   *    'ole'   - legacy binary .xls (starts with the OLE2 signature)
+   *    'utf16' - UTF-16 text with a byte-order-mark
+   *    'text'  - anything else (UTF-8/ASCII text, incl. no-BOM UTF-16,
+   *              plain tab-dump, or CSV) */
+  function detectFileKind(bytes) {
+    if (bytes.length >= 4 && bytes[0] === 0x50 && bytes[1] === 0x4B &&
+        (bytes[2] === 0x03 || bytes[2] === 0x05 || bytes[2] === 0x07)) return 'zip';
+    if (bytes.length >= 4 && bytes[0] === 0xD0 && bytes[1] === 0xCF &&
+        bytes[2] === 0x11 && bytes[3] === 0xE0) return 'ole';
+    if (bytes.length >= 2 &&
+        ((bytes[0] === 0xFF && bytes[1] === 0xFE) || (bytes[0] === 0xFE && bytes[1] === 0xFF))) {
+      return 'utf16';
+    }
+    return 'text';
+  }
+
+  /** Flattens the first sheet of a SheetJS workbook back into the same
+   *  tab-delimited "print dump" shape the rest of the pipeline expects:
+   *  one line per row, cells rejoined with '\t'. Works whether the sheet
+   *  is the 2-giant-text-column layout (payslip dump re-saved as .xlsx)
+   *  or a plain CSV of the same content. */
+  function workbookToText(wb) {
+    const sheetName = wb.SheetNames[0];
+    const ws = wb.Sheets[sheetName];
+    if (!ws) return '';
+    const rows = XLSX.utils.sheet_to_json(ws, { header: 1, raw: false, defval: '' });
+    return rows
+      .map(r => r.map(v => (v === null || v === undefined) ? '' : String(v)).join('\t'))
+      .join('\n');
+  }
 
   /** Detect UTF-16 BOM (LE or BE) and decode; falls back to LE if no BOM found
    *  (observed default for this payroll system's export). */
@@ -206,8 +258,38 @@ const BulkParser = (() => {
   function parseBulkFile(arrayBuffer, officePrefix, onProgress) {
     const notify = (s) => { if (onProgress) onProgress(s); };
 
-    notify('Decoding UTF-16 text stream…');
-    const text = decodeUtf16(arrayBuffer);
+    const bytes = new Uint8Array(arrayBuffer);
+    const kind = detectFileKind(bytes);
+    let text;
+
+    if (kind === 'zip' || kind === 'ole') {
+      notify(kind === 'zip' ? 'Detected a real .xlsx workbook — reading cells…'
+                             : 'Detected a legacy binary .xls workbook — reading cells…');
+      if (typeof XLSX === 'undefined') {
+        throw new Error('Spreadsheet reader (SheetJS) failed to load — check your network/CDN access and try again.');
+      }
+      const wb = XLSX.read(arrayBuffer, { type: 'array' });
+      text = workbookToText(wb);
+    } else if (kind === 'utf16') {
+      notify('Decoding UTF-16 text stream…');
+      text = decodeUtf16(arrayBuffer);
+    } else {
+      const rawText = new TextDecoder('utf-8').decode(arrayBuffer);
+      if (rawText.includes('\t')) {
+        notify('Decoding as plain tab-delimited text…');
+        text = rawText;
+      } else if (rawText.includes(',')) {
+        notify('Detected CSV — parsing rows…');
+        if (typeof XLSX === 'undefined') {
+          throw new Error('Spreadsheet reader (SheetJS) failed to load — check your network/CDN access and try again.');
+        }
+        const wb = XLSX.read(rawText, { type: 'string' });
+        text = workbookToText(wb);
+      } else {
+        notify('Decoding as plain text…');
+        text = rawText;
+      }
+    }
 
     notify('Splitting two-column print layout…');
     const [leftText, rightText] = buildStreams(text);
@@ -226,8 +308,8 @@ const BulkParser = (() => {
   }
 
   return {
-    decodeUtf16, buildStreams, splitRecords, parseRecord, mergeRecords,
-    estJoiningDate, detectRefDate, parseBulkFile,
+    decodeUtf16, detectFileKind, workbookToText, buildStreams, splitRecords,
+    parseRecord, mergeRecords, estJoiningDate, detectRefDate, parseBulkFile,
   };
 })();
 
