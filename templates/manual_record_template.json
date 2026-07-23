@@ -1,0 +1,42 @@
+{
+  "PersNo": "",
+  "Name": "",
+  "GuardianName": "",
+  "CNIC": "",
+  "PayPeriod": "",
+  "DOB": "",
+  "EntryIntoService": "",
+  "LengthOfService": "",
+  "EmploymentCategory": "",
+  "Designation": "",
+  "DepartmentCode": "",
+  "DDOCode": "",
+  "DDOName": "",
+  "BPS": "",
+  "PayStage": "",
+  "PayScale": "",
+  "GPFAccountNo": "",
+  "GPFInterestStatus": "",
+  "GPFBalance": "",
+  "BankAccountNo": "",
+  "BankDetails": "",
+  "GrossPay": "",
+  "NetPay": "",
+  "IncomeTaxPayable": "",
+  "IncomeTaxRecoverable": "",
+  "City": "",
+  "Email": "",
+  "SourceFile": "",
+  "Earnings": {
+    "0001": {
+      "desc": "Basic Pay",
+      "amt": "0.00"
+    }
+  },
+  "Deductions": {
+    "3609": {
+      "desc": "Income Tax",
+      "amt": "0.00"
+    }
+  }
+}
