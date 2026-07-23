@@ -9,7 +9,7 @@
   }
 
   // ---------------------------------------------------------------- Tabs
-  const tabs = document.querySelectorAll('.tab');
+  const tabs = document.querySelectorAll('.mode-btn');
   const panels = { bulk: document.getElementById('panel-bulk'), individual: document.getElementById('panel-individual') };
   tabs.forEach(tab => {
     tab.addEventListener('click', () => {
