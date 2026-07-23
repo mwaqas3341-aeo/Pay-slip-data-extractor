@@ -222,16 +222,50 @@
     setTimeout(() => URL.revokeObjectURL(url), 5000);
   });
 
-  async function extractPdfText(file) {
+  /** pdf.js hands back text as disconnected fragments with x/y positions —
+   *  NOT pre-arranged into lines. Field regexes below rely on real line
+   *  breaks (matching the slip's visual layout), so fragments are grouped
+   *  into lines by y-position (rows), then ordered left-to-right by x
+   *  within each row, before being joined. Without this, an entire page
+   *  becomes one run-on line and every regex over-captures to the end
+   *  of the page. */
+  function linesFromTextContent(items) {
+    const frags = items
+      .filter(it => it.str && it.str.trim().length)
+      .map(it => ({ x: it.transform[4], y: it.transform[5], str: it.str }));
+    frags.sort((a, b) => b.y - a.y || a.x - b.x);
+
+    const rows = [];
+    const Y_TOLERANCE = 2.5;
+    let current = [];
+    let currentY = null;
+    for (const f of frags) {
+      if (currentY === null || Math.abs(f.y - currentY) <= Y_TOLERANCE) {
+        current.push(f);
+        if (currentY === null) currentY = f.y;
+      } else {
+        rows.push(current);
+        current = [f];
+        currentY = f.y;
+      }
+    }
+    if (current.length) rows.push(current);
+
+    return rows.map(row => row.sort((a, b) => a.x - b.x).map(f => f.str).join(' '));
+  }
+
+  /** Returns an array of page texts (one string per PDF page), each with
+   *  reconstructed line breaks. */
+  async function extractPdfPages(file) {
     const buf = await file.arrayBuffer();
     const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
-    let text = '';
+    const pages = [];
     for (let i = 1; i <= pdf.numPages; i++) {
       const page = await pdf.getPage(i);
       const content = await page.getTextContent();
-      text += content.items.map(it => it.str).join(' ') + '\n';
+      pages.push(linesFromTextContent(content.items).join('\n'));
     }
-    return text;
+    return pages;
   }
 
   btnRunIndividual.addEventListener('click', async () => {
@@ -254,14 +288,25 @@
             log('log-individual', `  loaded ${recs.length} record(s) from ${file.name}`, 'log-ok');
           } else if (lower.endsWith('.pdf')) {
             log('log-individual', `Extracting text layer from ${file.name}…`);
-            const text = await extractPdfText(file);
-            const rec = IndividualParser.parseText(text, file.name);
-            if (!rec.PersNo && !rec.Name) {
-              log('log-individual', `  WARNING: could not find a text layer or recognizable fields in ${file.name} — this may be a scanned image. See "Have a screenshot instead?" for the manual JSON route.`, 'log-error');
-            } else {
-              log('log-individual', `  parsed ${rec.Name || rec.PersNo || file.name}`, 'log-ok');
+            const pages = await extractPdfPages(file);
+            const multiPage = pages.length > 1;
+            let pageOk = 0;
+            pages.forEach((pageText, idx) => {
+              if (!pageText.trim()) return;
+              const sourceLabel = multiPage ? `${file.name} (p.${idx + 1})` : file.name;
+              const rec = IndividualParser.parseText(pageText, sourceLabel);
+              if (!rec.PersNo && !rec.Name) {
+                log('log-individual', `  WARNING: no recognizable fields on page ${idx + 1} of ${file.name} — may be a scanned image, a cover/blank page, or a different layout.`, 'log-error');
+              } else {
+                pageOk += 1;
+                records.push(rec);
+              }
+            });
+            if (multiPage) {
+              log('log-individual', `  ${file.name}: ${pageOk} of ${pages.length} pages parsed as employee records`, 'log-ok');
+            } else if (pageOk) {
+              log('log-individual', `  parsed ${records[records.length - 1].Name || records[records.length - 1].PersNo || file.name}`, 'log-ok');
             }
-            records.push(rec);
           } else {
             log('log-individual', `Skipping ${file.name} — unsupported file type.`, 'log-error');
           }
