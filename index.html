@@ -7,7 +7,118 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- ADDED: FontAwesome for clear icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="stylesheet" href="css/style.css">
+
+<style>
+/* ═══════════════════════════════════════════════════════════════════
+   ADDED: COMPACT CONTACT CARD (Right aligned in topbar)
+   ═══════════════════════════════════════════════════════════════════ */
+.topbar-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+.topbar-contact {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    line-height: 1.4;
+    font-size: 11px;
+}
+.mini-name {
+    font-weight: 700;
+    color: #0d3b36; /* Dark teal matching the brand */
+    font-size: 12px;
+}
+.mini-desig {
+    font-weight: 400;
+    color: #6B7280;
+    font-size: 11px;
+}
+.mini-icons {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    margin-top: 2px;
+}
+.mini-icons a {
+    text-decoration: none;
+    color: #0d3b36;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 600;
+    font-size: 11px;
+    background: #f0fdf4;
+    padding: 2px 8px;
+    border-radius: 12px;
+    transition: 0.15s;
+}
+.mini-icons a i {
+    color: #25D366; /* WhatsApp Green */
+}
+.mini-icons a:hover {
+    background: #0d3b36;
+    color: #fff;
+}
+.mini-icons a:hover i {
+    color: #fff;
+}
+.privacy-pill { 
+    /* Matching original styling but kept on the right */
+    font-size: 11px; 
+    color: #64748b; 
+    background: #f1f5f9; 
+    padding: 4px 12px; 
+    border-radius: 20px; 
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   ADDED: SHINY DOWNLOAD BUTTON (When enabled)
+   ═══════════════════════════════════════════════════════════════════ */
+.btn-download {
+    background: linear-gradient(90deg, #1A7A4A, #2ecc71, #1565C0, #1A7A4A);
+    background-size: 300% 100%;
+    color: #ffffff;
+    border: none;
+    box-shadow: 0 2px 6px rgba(21, 101, 192, 0.3);
+    animation: shimmer 4s infinite linear;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    border-radius: 6px;
+    padding: 10px 24px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+}
+.btn-download:hover:not(:disabled) {
+    transform: scale(1.04);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    color: #fff;
+}
+.btn-download:disabled {
+    background: #cbd5e1 !important;
+    animation: none !important;
+    transform: none !important;
+    cursor: not-allowed !important;
+    box-shadow: none !important;
+    color: #fff !important;
+}
+@keyframes shimmer {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 300% 50%; }
+}
+/* ═══════════════════════════════════════════════════════════════════ */
+</style>
 </head>
 <body>
 
@@ -21,36 +132,28 @@
         <span class="brand-title">Payroll Extract</span>
       </div>
     </div>
-    <div class="privacy-pill">Runs entirely in your browser · files never leave this device</div>
+    
+    <!-- ═══════════════════════════════════════════════════════════════════
+         RIGHT ALIGNED CONTACT CARD + PRIVACY PILL
+         ═══════════════════════════════════════════════════════════════════ -->
+    <div class="topbar-right">
+      <div class="topbar-contact">
+        <div>
+          <span class="mini-name">Muhammad Waqas</span> 
+          <span class="mini-desig">(Assistant Education Officer)</span>
+        </div>
+        <div class="mini-icons">
+          <a href="tel:+923047392281"><i class="fas fa-phone-alt"></i> 0304-7392281</a>
+          <a href="tel:+923466507640"><i class="fas fa-phone-alt"></i> 0346-6507640</a>
+          <a href="https://whatsapp.com/channel/0029VbCvSD6EwEjsKWnrzm1B" target="_blank" title="Join WhatsApp Channel"><i class="fa-brands fa-whatsapp"></i> 📢</a>
+        </div>
+      </div>
+      <div class="privacy-pill">Runs entirely in your browser · files never leave this device</div>
+    </div>
+    <!-- ═══════════════════════════════════════════════════════════════════ -->
+    
   </div>
 </header>
-
-<section class="credit-block">
-  <div class="credit-inner">
-    <p class="credit-label">Prepared by</p>
-    <h2 class="credit-name">Muhammad Waqas</h2>
-    <p class="credit-title">Assistant Education Officer</p>
-    <div class="credit-contacts">
-      <a href="tel:+923047392281" class="credit-chip">
-        <span class="credit-icon" aria-hidden="true">&#9742;</span> 0304-7392281
-      </a>
-      <a href="tel:+923466507640" class="credit-chip">
-        <span class="credit-icon" aria-hidden="true">&#9742;</span> 0346-6507640
-      </a>
-    </div>
-    <a class="whatsapp-pill" href="https://wa.me/923047392281" target="_blank" rel="noopener">
-      WhatsApp پر رابطہ کریں
-    </a>
-  </div>
-</section>
-
-<a class="whatsapp-banner" href="https://whatsapp.com/channel/0029VbCvSD6EwEjsKWnrzm1B" target="_blank" rel="noopener">
-  <span class="whatsapp-banner-icon" aria-hidden="true">&#9742;</span>
-  <span class="whatsapp-banner-text">
-    <span class="whatsapp-banner-en">Join WhatsApp Channel</span>
-    <span class="whatsapp-banner-ur">ہمارا WhatsApp Channel ضرور Join کریں</span>
-  </span>
-</a>
 
 <main class="page">
 
