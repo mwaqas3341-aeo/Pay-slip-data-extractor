@@ -93,7 +93,7 @@
       log('log-bulk', `Employee rows after merge${officePrefix ? ` (filtered to "${officePrefix}")` : ''}: ${merged.length}`, 'log-ok');
 
       if (merged.length === 0) {
-        log('log-bulk', 'No matching records — check the office-code prefix, or that this is really the UTF-16 payroll export.', 'log-error');
+        log('log-bulk', 'No matching records — check the office-code prefix, or that this file is really a payroll print-dump export (raw text, .xls/.xlsx workbook, or .csv of the same layout).', 'log-error');
         btnRunBulk.disabled = false;
         return;
       }
