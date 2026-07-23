@@ -7,13 +7,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-<!-- ADDED: FontAwesome for clear icons -->
+<!-- Added FontAwesome for clear icons -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="stylesheet" href="css/style.css">
 
 <style>
 /* ═══════════════════════════════════════════════════════════════════
-   ADDED: COMPACT CONTACT CARD (Right aligned in topbar)
+   ADDED: COMPACT CONTACT CARD (Stacked under Privacy Pill)
    ═══════════════════════════════════════════════════════════════════ */
 .topbar-inner {
     display: flex;
@@ -22,10 +22,18 @@
 }
 .topbar-right {
     display: flex;
-    align-items: center;
-    gap: 20px;
-    flex-wrap: wrap;
-    justify-content: flex-end;
+    flex-direction: column; /* Stack elements vertically */
+    align-items: flex-end;
+    justify-content: center;
+    gap: 6px;
+}
+.privacy-pill { 
+    font-size: 11px; 
+    color: #64748b; 
+    background: #f1f5f9; 
+    padding: 4px 12px; 
+    border-radius: 20px; 
+    margin: 0;
 }
 .topbar-contact {
     display: flex;
@@ -73,14 +81,6 @@
 }
 .mini-icons a:hover i {
     color: #fff;
-}
-.privacy-pill { 
-    /* Matching original styling but kept on the right */
-    font-size: 11px; 
-    color: #64748b; 
-    background: #f1f5f9; 
-    padding: 4px 12px; 
-    border-radius: 20px; 
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -134,9 +134,13 @@
     </div>
     
     <!-- ═══════════════════════════════════════════════════════════════════
-         RIGHT ALIGNED CONTACT CARD + PRIVACY PILL
+         RIGHT ALIGNED: PRIVACY PILL + CONTACT CARD UNDERNEATH
          ═══════════════════════════════════════════════════════════════════ -->
     <div class="topbar-right">
+      <!-- Top: Privacy Pill -->
+      <div class="privacy-pill">Runs entirely in your browser · files never leave this device</div>
+      
+      <!-- Directly Below: Contact Card -->
       <div class="topbar-contact">
         <div>
           <span class="mini-name">Muhammad Waqas</span> 
@@ -148,7 +152,6 @@
           <a href="https://whatsapp.com/channel/0029VbCvSD6EwEjsKWnrzm1B" target="_blank" title="Join WhatsApp Channel"><i class="fa-brands fa-whatsapp"></i> 📢</a>
         </div>
       </div>
-      <div class="privacy-pill">Runs entirely in your browser · files never leave this device</div>
     </div>
     <!-- ═══════════════════════════════════════════════════════════════════ -->
     
