@@ -19,7 +19,6 @@
       </span>
       <div class="brand-text">
         <span class="brand-title">Payroll Extract</span>
-        <span class="brand-sub">AEO Office — School Education Department, Punjab</span>
       </div>
     </div>
     <div class="privacy-pill">Runs entirely in your browser · files never leave this device</div>
@@ -66,14 +65,22 @@
     </p>
   </section>
 
-  <nav class="tabs" role="tablist" aria-label="Extraction mode">
-    <button class="tab active" role="tab" aria-selected="true" data-mode="bulk" id="tab-bulk">
-      <span class="tab-index">01</span>
-      District Payroll Register <span class="tab-hint">(bulk .XLS)</span>
+  <nav class="mode-select" role="tablist" aria-label="Extraction mode">
+    <button class="mode-btn active" role="tab" aria-selected="true" data-mode="bulk" id="tab-bulk">
+      <span class="mode-btn-badge">01</span>
+      <span class="mode-btn-body">
+        <span class="mode-btn-title">District Payroll Register</span>
+        <span class="mode-btn-sub">Bulk .XLS — hundreds of employees at once</span>
+      </span>
+      <span class="mode-btn-arrow" aria-hidden="true">&#8594;</span>
     </button>
-    <button class="tab" role="tab" aria-selected="false" data-mode="individual" id="tab-individual">
-      <span class="tab-index">02</span>
-      Individual Salary Slip <span class="tab-hint">(PDF / screenshot JSON)</span>
+    <button class="mode-btn" role="tab" aria-selected="false" data-mode="individual" id="tab-individual">
+      <span class="mode-btn-badge">02</span>
+      <span class="mode-btn-body">
+        <span class="mode-btn-title">Individual Salary Slip</span>
+        <span class="mode-btn-sub">PDF slips, one or many pages, or screenshot JSON</span>
+      </span>
+      <span class="mode-btn-arrow" aria-hidden="true">&#8594;</span>
     </button>
   </nav>
 
@@ -169,10 +176,6 @@
   </section>
 
 </main>
-
-<footer class="foot">
-  <p>Built for the School Education Department, Punjab — office of the Assistant Education Officer.</p>
-</footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
